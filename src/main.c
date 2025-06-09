@@ -10,19 +10,20 @@
 #define TILE_TYPES 5
 #define SCORE_FONT_SIZE 32
 
-const char tile_chars[TILE_TYPES] = { '$', '&', '%', '#', '@' };
+const char TILE_CHARS[TILE_TYPES] = { '$', '&', '%', '#', '@' };
 
 char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
 
 Vector2 grid_origin;
 Texture2D background;
+Vector2 hovered_tile = { -1, -1 };
 Vector2 selected_tile = { -1, -1 };
 
 int score = 200;
 Font score_font;
 
 char random_tile() {
-	return tile_chars[rand() % TILE_TYPES];
+	return TILE_CHARS[rand() % TILE_TYPES];
 }
 
 void init_board() {
@@ -62,20 +63,27 @@ int main(void) {
 
 		// update game logic
 		mouse = GetMousePosition();
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || true) { // added "|| true" to test highlight-on-hover
-			Vector2 grid_offset = {
-				mouse.x - grid_origin.x,
-				mouse.y - grid_origin.y
-			};
-			if (grid_offset.x < 0 || grid_offset.y < 0 || grid_offset.x >= BOARD_SIZE*TILE_SIZE || grid_offset.y >= BOARD_SIZE*TILE_SIZE) {
-				selected_tile.x = -1;
-				selected_tile.y = -1;
-			}
-			else {
-				selected_tile.x = (int) (grid_offset.x / TILE_SIZE);
-				selected_tile.y = (int) (grid_offset.y / TILE_SIZE);
+
+		// calculate which tile (if any) is being hovered over
+		Vector2 grid_offset = {
+			mouse.x - grid_origin.x,
+			mouse.y - grid_origin.y
+		};
+		if (grid_offset.x < 0 || grid_offset.y < 0 || grid_offset.x >= BOARD_SIZE*TILE_SIZE || grid_offset.y >= BOARD_SIZE*TILE_SIZE) {
+			hovered_tile.x = -1; // we will only draw the highlight if this value >= 0
+			hovered_tile.y = -1;
+		}
+		else {
+			hovered_tile.x = (int) (grid_offset.x / TILE_SIZE);
+			hovered_tile.y = (int) (grid_offset.y / TILE_SIZE);
+
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				selected_tile.x = hovered_tile.x;
+				selected_tile.y = hovered_tile.y;
 			}
 		}
+
+		
 
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -116,7 +124,21 @@ int main(void) {
 			}
 		}
 
-		// Draw selected tile
+		// Draw hovered-over tile
+		if (hovered_tile.x >= 0) {
+			DrawRectangleLinesEx(
+				(Rectangle) {
+					grid_origin.x + (hovered_tile.x) * TILE_SIZE,
+					grid_origin.y + (hovered_tile.y) * TILE_SIZE,
+					TILE_SIZE,
+					TILE_SIZE
+				},
+				2,
+				WHITE
+			);
+		}
+
+		// Draw selected (clicked) tile
 		if (selected_tile.x >= 0) {
 			DrawRectangleLinesEx(
 				(Rectangle) {
