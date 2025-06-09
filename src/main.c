@@ -45,7 +45,7 @@ int main(void) {
 	SetTargetFPS(60);
 	srand(time(NULL)); // seed with current time for true random
 
-	// background = LoadTexture();
+	background = LoadTexture("assets/night-sky800x480.png");
 
 	init_board();
 
@@ -56,6 +56,19 @@ int main(void) {
 
 		BeginDrawing();
 		ClearBackground(BLACK);
+
+		DrawTexturePro(
+			background,
+			(Rectangle) {
+				0, 0, background.width, background.height
+			},
+			(Rectangle) {
+				0, 0, GetScreenWidth(), GetScreenHeight()
+			},
+			(Vector2) { 0, 0 },
+			0.0f,
+			WHITE
+		);
 
 		for (int y=0; y<BOARD_SIZE; y++) {
 			for (int x=0; x<BOARD_SIZE; x++) {
@@ -79,6 +92,8 @@ int main(void) {
 
 		EndDrawing();
 	}
+
+	UnloadTexture(background);
 
 	// raylib function
 	CloseWindow();
