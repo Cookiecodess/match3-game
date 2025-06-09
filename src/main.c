@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
@@ -15,6 +16,7 @@ char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
 
 Vector2 grid_origin;
 Texture2D background;
+Vector2 selected_tile = { -1, -1 };
 
 int score = 200;
 Font score_font;
@@ -53,11 +55,27 @@ int main(void) {
 	score_font = LoadFontEx("assets/04b03.TTF", SCORE_FONT_SIZE, NULL, 0);
 
 	init_board();
+	Vector2 mouse = { 0, 0 };
 
 	// main game loop
 	while (!WindowShouldClose()) {
 
 		// update game logic
+		mouse = GetMousePosition();
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || true) { // added "|| true" to test highlight-on-hover
+			Vector2 grid_offset = {
+				mouse.x - grid_origin.x,
+				mouse.y - grid_origin.y
+			};
+			if (grid_offset.x < 0 || grid_offset.y < 0 || grid_offset.x >= BOARD_SIZE*TILE_SIZE || grid_offset.y >= BOARD_SIZE*TILE_SIZE) {
+				selected_tile.x = -1;
+				selected_tile.y = -1;
+			}
+			else {
+				selected_tile.x = (int) (grid_offset.x / TILE_SIZE);
+				selected_tile.y = (int) (grid_offset.y / TILE_SIZE);
+			}
+		}
 
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -98,6 +116,20 @@ int main(void) {
 			}
 		}
 
+		// Draw selected tile
+		if (selected_tile.x >= 0) {
+			DrawRectangleLinesEx(
+				(Rectangle) {
+					grid_origin.x + (selected_tile.x) * TILE_SIZE,
+					grid_origin.y + (selected_tile.y) * TILE_SIZE,
+					TILE_SIZE,
+					TILE_SIZE
+				},
+				2,
+				YELLOW
+			);
+		}
+
 		DrawTextEx(
 			score_font,
 			TextFormat("SCORE: %d", score),
@@ -114,6 +146,7 @@ int main(void) {
 	}
 
 	UnloadTexture(background);
+	UnloadFont(score_font);
 
 	// raylib function
 	CloseWindow();
