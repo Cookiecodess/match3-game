@@ -7,6 +7,7 @@
 #define BOARD_SIZE 8
 #define TILE_SIZE 42
 #define TILE_TYPES 5
+#define SCORE_FONT_SIZE 32
 
 const char tile_chars[TILE_TYPES] = { '$', '&', '%', '#', '@' };
 
@@ -14,6 +15,9 @@ char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
 
 Vector2 grid_origin;
 Texture2D background;
+
+int score = 200;
+Font score_font;
 
 char random_tile() {
 	return tile_chars[rand() % TILE_TYPES];
@@ -46,6 +50,7 @@ int main(void) {
 	srand(time(NULL)); // seed with current time for true random
 
 	background = LoadTexture("assets/night-sky800x480.png");
+	score_font = LoadFontEx("assets/04b03.TTF", SCORE_FONT_SIZE, NULL, 0);
 
 	init_board();
 
@@ -84,11 +89,26 @@ int main(void) {
 				DrawTextEx(
 					GetFontDefault(), // font
 					TextFormat("%c", board[y][x]), // text to draw
-					(Vector2) { rect.x + 12, rect.y + 8 }, // x, y coords
+					(Vector2) { 
+						rect.x + 14, 
+						rect.y + 10 
+					}, // x, y coords
 					20, 1, WHITE // respectively: fontSize, spacing, tint
 				);
 			}
 		}
+
+		DrawTextEx(
+			score_font,
+			TextFormat("SCORE: %d", score),
+			(Vector2) {
+				20, 20
+			},
+			SCORE_FONT_SIZE,
+			1.0f,
+			YELLOW
+		);
+		// DrawText(TextFormat("スコア: %d", score), 20, 20, 24, YELLOW);
 
 		EndDrawing();
 	}
