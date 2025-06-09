@@ -13,6 +13,7 @@
 const char TILE_CHARS[TILE_TYPES] = { '$', '&', '%', '#', '@' };
 
 char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
+bool matched[BOARD_SIZE][BOARD_SIZE];
 
 Vector2 grid_origin;
 Texture2D background;
@@ -24,6 +25,45 @@ Font score_font;
 
 char random_tile() {
 	return TILE_CHARS[rand() % TILE_TYPES];
+}
+
+bool find_matches() {
+	bool found = false;
+	for (int y=0; y<BOARD_SIZE; y++) {
+		for (int x=0; x<BOARD_SIZE; x++) {
+			matched[y][x] = false;
+		}
+	}
+
+	for (int y = 0; y < BOARD_SIZE; y++) {
+		for (int x = 0; x < BOARD_SIZE - 2; x++) { 
+			char tile = board[y][x];
+			if (tile == board[y][x+1] &&
+			    tile == board[y][x+2]) {
+				matched[y][x] = matched[y][x+1] = matched[y][x+2] = true;
+				// update score
+				score += 10;
+
+				found = true;
+			}
+		}
+	}
+
+	for (int x = 0; x < BOARD_SIZE; x++) {
+		for (int y = 0; y < BOARD_SIZE - 2; y++) { 
+			char tile = board[y][x];
+			if (tile == board[y+1][x] &&
+			    tile == board[y+2][x]) {
+				matched[y][x] = matched[y+1][x] = matched[y+2][x] = true;
+				// update score
+				score += 10;
+
+				found = true;
+			}
+		}
+	}
+
+	return found;
 }
 
 void init_board() {
@@ -62,13 +102,16 @@ int main(void) {
 	while (!WindowShouldClose()) {
 
 		// update game logic
+
 		mouse = GetMousePosition();
 
 		// calculate which tile (if any) is being hovered over
+		// or clicked on
 		Vector2 grid_offset = {
 			mouse.x - grid_origin.x,
 			mouse.y - grid_origin.y
 		};
+
 		if (grid_offset.x < 0 || grid_offset.y < 0 || grid_offset.x >= BOARD_SIZE*TILE_SIZE || grid_offset.y >= BOARD_SIZE*TILE_SIZE) {
 			hovered_tile.x = -1; // we will only draw the highlight if this value >= 0
 			hovered_tile.y = -1;
@@ -83,7 +126,8 @@ int main(void) {
 			}
 		}
 
-		
+		// find matches and update score
+		find_matches();
 
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -119,7 +163,9 @@ int main(void) {
 						rect.x + 14, 
 						rect.y + 10 
 					}, // x, y coords
-					20, 1, WHITE // respectively: fontSize, spacing, tint
+					20, 
+					1, 
+					matched[y][x] ? GREEN : WHITE 
 				);
 			}
 		}
