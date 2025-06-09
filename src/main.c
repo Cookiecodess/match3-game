@@ -1,54 +1,87 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
 #include "raylib.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
+#include <math.h>
 
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+#define BOARD_SIZE 8
+#define TILE_SIZE 42
+#define TILE_TYPES 5
 
-int main ()
-{
-	// Tell the window to use vsync and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+const char tile_chars[TILE_TYPES] = { '$', '&', '%', '#', '@' };
 
-	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
 
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
+Vector2 grid_origin;
+Texture2D background;
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	
-	// game loop
-	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
-	{
-		// drawing
+char random_tile() {
+	return tile_chars[rand() % TILE_TYPES];
+}
+
+void init_board() {
+	for (int y=0; y<BOARD_SIZE; y++) {
+		for (int x=0; x<BOARD_SIZE; x++) {
+			board[y][x] = random_tile();
+		}
+	}
+
+	int grid_width = BOARD_SIZE * TILE_SIZE;
+	int grid_height = BOARD_SIZE * TILE_SIZE;
+
+	grid_origin = (Vector2) {
+		(GetScreenWidth() - grid_width) / 2,
+		(GetScreenHeight() - grid_height) / 2
+	};
+}
+
+int main(void) {
+	const int screen_width = 800;
+	const int screen_height = 450;
+
+	// raylib function: initialize 
+	InitWindow(screen_width, screen_height, "Match-3 with Raylib");
+
+	SetTargetFPS(60);
+	srand(time(NULL)); // seed with current time for true random
+
+	// background = LoadTexture();
+
+	init_board();
+
+	// main game loop
+	while (!WindowShouldClose()) {
+
+		// update game logic
+
 		BeginDrawing();
-
-		// Setup the back buffer for drawing (clear color and depth buffers)
 		ClearBackground(BLACK);
 
-		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
+		for (int y=0; y<BOARD_SIZE; y++) {
+			for (int x=0; x<BOARD_SIZE; x++) {
+				Rectangle rect = {
+					grid_origin.x + x * TILE_SIZE, // x coord
+					grid_origin.y + y * TILE_SIZE, // y coord
+					TILE_SIZE,	   // width
+					TILE_SIZE      // height
+				};
 
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
-		
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
+				DrawRectangleLinesEx(rect, 1, DARKGRAY);
+
+				DrawTextEx(
+					GetFontDefault(), // font
+					TextFormat("%c", board[y][x]), // text to draw
+					(Vector2) { rect.x + 12, rect.y + 8 }, // x, y coords
+					20, 1, WHITE // respectively: fontSize, spacing, tint
+				);
+			}
+		}
+
 		EndDrawing();
 	}
 
-	// cleanup
-	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
-
-	// destroy the window and cleanup the OpenGL context
+	// raylib function
 	CloseWindow();
-	return 0;
 }
+
+
