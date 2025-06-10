@@ -15,6 +15,7 @@ const char TILE_CHARS[TILE_TYPES] = { '$', '&', '%', '#', '@' };
 char board[BOARD_SIZE][BOARD_SIZE]; // 2d-array for the board
 bool matched[BOARD_SIZE][BOARD_SIZE];
 float fall_offset[BOARD_SIZE][BOARD_SIZE];
+float swap_offset[BOARD_SIZE][BOARD_SIZE];
 
 Vector2 grid_origin;
 Texture2D background;
@@ -92,6 +93,29 @@ void resolve_matches() {
 	}
 }
 
+// my own
+void swap_tiles(Vector2 tile1_vec, Vector2 tile2_vec) {
+	int tile1_x = tile1_vec.x;
+	int tile1_y = tile1_vec.y;
+	int tile2_x = tile2_vec.x;
+	int tile2_y = tile2_vec.y;
+
+	char temp = board[tile1_y][tile1_x];
+	board[tile1_y][tile1_x] = board[tile2_y][tile2_x];
+	board[tile2_y][tile2_x] = temp;
+}
+
+// my own
+bool is_adjacent(Vector2 tile1_vec, Vector2 tile2_vec) {
+	if (tile1_vec.x == tile2_vec.x && abs(tile1_vec.y - tile2_vec.y) == 1) {
+		return true;
+	}
+	if (tile1_vec.y == tile2_vec.y && abs(tile1_vec.x - tile2_vec.x) == 1) {
+		return true;
+	}
+	return false;
+}
+
 void init_board() {
 	for (int y=0; y<BOARD_SIZE; y++) {
 		for (int x=0; x<BOARD_SIZE; x++) {
@@ -143,12 +167,20 @@ int main(void) {
 			hovered_tile.y = -1;
 		}
 		else {
+			// mouse is inside the board
+
 			hovered_tile.x = (int) (grid_offset.x / TILE_SIZE);
 			hovered_tile.y = (int) (grid_offset.y / TILE_SIZE);
 
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-				selected_tile.x = hovered_tile.x;
-				selected_tile.y = hovered_tile.y;
+				if (selected_tile.x != -1 && is_adjacent(selected_tile, hovered_tile)) {
+					// swap tiles
+					swap_tiles(selected_tile, hovered_tile);
+				} else {
+					// just deselect old tile and select new tile
+					selected_tile.x = hovered_tile.x;
+					selected_tile.y = hovered_tile.y;
+				}
 			}
 		}
 
