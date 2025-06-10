@@ -173,14 +173,20 @@ int main(void) {
 			hovered_tile.y = (int) (grid_offset.y / TILE_SIZE);
 
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-				if (selected_tile.x != -1 && is_adjacent(selected_tile, hovered_tile)) {
-					// swap tiles
-					swap_tiles(selected_tile, hovered_tile);
-				} else {
-					// just deselect old tile and select new tile
-					selected_tile.x = hovered_tile.x;
-					selected_tile.y = hovered_tile.y;
-				}
+				// just deselect old tile and select new tile
+				selected_tile.x = hovered_tile.x;
+				selected_tile.y = hovered_tile.y;
+				// if (selected_tile.x != -1 && is_adjacent(selected_tile, hovered_tile)) {
+				// 	// swap tiles
+				// 	swap_tiles(selected_tile, hovered_tile);
+				// } else {
+				// 	// just deselect old tile and select new tile
+				// 	selected_tile.x = hovered_tile.x;
+				// 	selected_tile.y = hovered_tile.y;
+				// }
+			}
+			else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && selected_tile.x != -1 && is_adjacent(selected_tile, hovered_tile)) {
+				swap_tiles(selected_tile, hovered_tile);
 			}
 		}
 
