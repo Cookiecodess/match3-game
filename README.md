@@ -2,10 +2,13 @@
 
 I've always been super interested in programming video games, especially retro-style ones.
 
-This is a great start for me! This project uses C, a language I'm okay with, and Raylib, a video game programming library.
+This [YouTube tutorial](https://www.youtube.com/watch?v=P7PMA3X1tf8) is a great start for me! This project uses Raylib, a video game programming library written in C.
+
+I used this [Raylib quickstart template](https://github.com/raylib-extras/raylib-quickstart) to build Raylib before starting writing any actual code for the game.
 
 ## My own features
 
-For most of this project, at least till now, I have followed along with the tutorial. But these are some of the features that I'm very say I have implemented myself :)
+For most of this project, at least till now, I have followed along with the tutorial. But these are some features that I'm very proud to say that I have implemented on my own :)
 
 - Highlight tiles in white on hover
+- Press-drag-and-release to swap tiles
